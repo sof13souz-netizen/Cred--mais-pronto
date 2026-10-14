@@ -1,0 +1,710 @@
+/* ---------- variáveis ----------
+   as cores ficam todas aqui em cima, se quiser mexer na paleta é só mudar daqui */
+:root {
+  /* paleta oficial do CredMais */
+  --azul: #1A67F5;
+  --azul-escuro: #0F2F73;
+  --azul-claro: #87B2F7;
+
+  --verde: #40BE76;
+  --verde-claro: #DDF5E7;
+
+  --vermelho: #F44A4D;
+  --vermelho-claro: #FDEBEC;
+
+  --fundo: #F6F9FD;
+  --cinza-claro: #E6ECF4;
+  --cinza-texto: #6B7DA8;
+  --branco: #FFFFFF;
+
+  /* curva usada nas transições: começa rápido e vai desacelerando, dá a sensação de "deslizar" */
+  --suave: cubic-bezier(0.23, 0.6, 0.68, 1);
+}
+
+/* reset básico, tira as margens chatas que o navegador coloca sozinho */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--fundo);
+  color: var(--azul-escuro);
+  line-height: 1.5;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+h1, h2, h3 {
+  line-height: 1.15;
+}
+
+/* ---------- header flutuante ----------
+   a ideia: sticky + margem negativa embaixo.
+   a margem de cima (--folga-topo) deixa ele solto no começo da página, e a margem
+   negativa de baixo puxa o banner pra trás dele, então ele sobrepõe o fundo
+   em vez de empurrar o conteúdo.
+   quando rola, o sticky com top: 0 cola ele literalmente na borda da tela.
+   pra mudar a altura é só mexer no --h-header */
+.topo {
+  --h-header: 80px; /* muda o tamanho vertical do header */
+  --folga-topo: 40px;/* muda a distância entre o header e o topo (no inicio) */
+  position: sticky; /* é isso que faz o header colar no topo */
+  top: 0;
+  z-index: 100;
+  width: fit-content;
+  max-width: 94%;
+  height: var(--h-header);
+  margin: var(--folga-topo) auto calc(-1 * (var(--folga-topo) + var(--h-header)));
+  padding: 0 56px;
+  background: var(--branco);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  transition: box-shadow 0.5s var(--suave), border-radius 0.5s var(--suave);
+}
+
+/* depois de colado só os cantos de baixo ficam arredondados, já que em cima ele encosta na tela */
+.topo.colado {
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 8px 24px rgba(15, 47, 115, 0.12);
+}
+
+/* o nav é "relative" pra barrinha azul (.marcador) se posicionar dentro dele */
+.topo nav {
+  position: relative;
+  display: flex;
+  gap: 36px;
+}
+
+.topo a {
+  position: relative;
+  display: inline-block;
+  padding: 10px 0 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--azul-escuro);
+  transition: transform 0.35s var(--suave), color 0.35s ease, font-weight 0.35s ease;
+}
+
+/* truque pra negrito não empurrar os outros do header: esse pseudo-elemento invisível
+   já reserva a largura da palavra em negrito (o texto vem do data-texto no html).
+   assim a palavra pode engordar no hover sem o menu ficar aumentando de tamanho */
+.topo a::after {
+  content: attr(data-texto);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 800;
+}
+
+/* hover e link atual: mais negrito e um tiquinho maior.
+   a barra azul NÃO aparece no hover, ela só acompanha o link atual */
+.topo a:hover,
+.topo a.ativo {
+  font-weight: 800;
+  transform: scale(1.06);
+}
+
+/* no hover a cor vai pro azul escuro e o link selecionado fica azul escuro.
+   o .ativo vem depois, então ganha mesmo quando o mouse tá em cima dele */
+.topo a:hover { color: var(--azul-escuro); }
+.topo a.ativo { color: var(--azul-escuro); }
+
+/* a barrinha azul: uma só, que desliza de um link pro outro.
+   o js muda o translateX e a largura, e a transition faz o deslize.
+   a curva é ease-out: sai já em velocidade (sem aquele começo parado que dava
+   sensação de atraso) e vai desacelerando até chegar na palavra */
+.marcador {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 4px; /* altura vertical da barra */
+  border-radius: 3px;
+  background: var(--azul);
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.15, 1, 0.95, 1), /* aqui muda a movimentação da BARRA embaixo do header */
+              width 0.4s cubic-bezier(0.25, 0.9, 0.35, 1);
+}
+
+/* ---------- banner ----------
+   o fundo azul e verde é uma imagem só, trocar o nome do arquivo aqui.
+   o "cover" faz ela preencher tudo sem distorcer */
+.banner {
+  background-image: url("../../uploads/Wallpaper.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding: 100px 6vw 90px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 32px;
+  min-height: 680px;
+}
+
+.banner-texto {
+  max-width: 520px;
+}
+
+.logo {
+  width: 400px;
+  margin-bottom: 28px;
+}
+
+.banner h1 {
+  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.banner h1 span {
+  color: var(--azul);
+}
+
+.banner p {
+  color: var(--cinza-texto);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 32px;
+}
+
+.banner-imagem {
+  width: 100%;
+  max-width: 560px;
+  justify-self: end;
+}
+
+/* botões */
+.botoes {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  min-width: 160px;
+  padding: 16px 28px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-principal {
+  background: var(--azul);
+  color: var(--branco);
+}
+
+.btn-secundario {
+  background: rgba(26, 103, 245, 0.14);
+  color: var(--azul);
+  border: 1px solid var(--azul-claro);
+}
+
+/* ---------- seções em geral ----------
+   .secao centraliza o conteúdo e limita a largura em 1100px */
+.secao {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 70px 6vw 20px;
+  scroll-margin-top: 80px; /* sem isso o header cobre o título quando clica no menu */
+}
+
+.secao h2 {
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.sobretitulo {
+  display: block;
+  color: var(--azul);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.subtitulo {
+  color: var(--cinza-texto);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 34px;
+}
+
+/* ---------- nosso objetivo ---------- */
+.objetivo {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 40px;
+}
+
+.objetivo h2 {
+  margin-bottom: 14px;
+}
+
+.objetivo p {
+  color: var(--cinza-texto);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* ---------- benefícios ---------- */
+.grid-beneficios {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 26px;
+}
+
+/* o mesmo .card serve pros 6 benefícios: ícone na esquerda, texto na direita */
+.card {
+  background: var(--branco);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: 0 2px 10px rgba(15, 47, 115, 0.05);
+}
+
+.card img {
+  width: 55px;
+  height: 55px;
+  flex-shrink: 0; /* impede o ícone de ser esmagado quando o texto é grande */
+}
+
+.card h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.card p {
+  color: var(--cinza-texto);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ---------- por que escolher ---------- */
+.grid-motivos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.motivo {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.motivo img {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+
+#relogio img {
+    width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  transform: rotate(270deg);
+}
+
+.motivo h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.motivo p {
+  color: var(--cinza-texto);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ---------- como funciona ----------
+   flex com setas no meio: os cards crescem igual (flex: 1)
+   e as setas ficam do tamanho delas (flex: none) */
+.passos {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.passo {
+  flex: 1;
+  background: var(--branco);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 130px;
+  box-shadow: 0 2px 10px rgba(15, 47, 115, 0.05);
+}
+
+.passo h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.passo p {
+  color: var(--cinza-texto);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.passo img {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+#usuario img {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  transform: rotate(90deg);
+}
+
+.seta {
+  width: 30px;
+  flex: none;
+}
+
+/* ---------- rodapé ----------
+   grid de 2 colunas: marca na esquerda, contato na direita,
+   links e direitos autorais ocupam a linha de baixo */
+.rodape {
+  background: var(--cinza-claro);
+  margin-top: 90px;
+  padding: 44px 6vw 24px;
+}
+
+.rodape-conteudo {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 40px;
+}
+
+.logo-rodape {
+  width: 230px;
+  margin-bottom: 8px;
+}
+
+.rodape p,
+.rodape a,
+.rodape span {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--cinza-texto);
+}
+
+.rodape-marca p {
+  max-width: 260px;
+}
+
+.redes {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.redes img {
+  width: 30px;
+  height: 30px;
+}
+
+/* a coluna de contato alinha tudo à direita, igual no layout */
+.rodape-contato {
+  text-align: right;
+}
+
+.rodape-contato h4 {
+  color: var(--azul);
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.rodape-contato p {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.rodape-contato img {
+  width: 12px;
+  height: 12px;
+}
+
+.rodape-contato a {
+  text-decoration: underline;
+}
+
+.rodape-links {
+  grid-column: 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 22px;
+}
+
+.rodape-direitos {
+  grid-column: 1 / -1; /* ocupa as duas colunas */
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* ---------- responsivo ----------
+   tablet: empilha banner e objetivo, benefícios em 2 colunas */
+@media (max-width: 900px) {
+  .banner,
+  .objetivo {
+    grid-template-columns: 1fr;
+  }
+
+  .banner-imagem {
+    justify-self: center;
+  }
+
+  .grid-beneficios,
+  .grid-motivos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* no tablet os passos quebram em 2x2, então as setas não fazem mais sentido */
+  .passos {
+    flex-wrap: wrap;
+  }
+
+  .passo {
+    flex: 1 1 45%;
+  }
+
+  .seta {
+    display: none;
+  }
+}
+
+/* celular: segue o figma mobile.
+   o header some, o notebook do banner vai pro canto, e tudo vira uma coluna só */
+@media (max-width: 600px) {
+  .topo { display: none; }
+
+  .secao { padding: 44px 7vw 10px; }
+  .secao h2 { font-size: 1.4rem; }
+  .subtitulo { font-size: 0.78rem; margin-bottom: 24px; }
+
+  /* banner: o notebook fica "solto" (absolute) no canto de cima à direita, por trás do texto.
+     o overflow hidden corta o pedaço que sai da tela pra não criar barra de rolagem lateral */
+  .banner {
+    position: relative;
+    overflow: hidden;
+    padding: 28px 7vw 44px;
+    min-height: 0;
+  }
+
+  .banner-texto {
+    position: relative;
+    z-index: 1; /* o texto fica na frente da imagem */
+    max-width: none;
+  }
+
+  .logo { width: 150px; margin-bottom: 14px; }
+  .banner h1 { font-size: clamp(1.5rem, 7.2vw, 1.9rem); margin-bottom: 14px; }
+  .banner p { font-size: 0.8rem; margin-bottom: 20px; }
+
+  /* "impulsiona" vira bloco pra forçar as 3 linhas do layout: crédito que / impulsiona / o seu negócio */
+  .banner h1 span { display: block; }
+
+  .banner-imagem {
+    position: absolute;
+    top: 14px;
+    right: -6vw;
+    width: 56vw;
+    max-width: 300px;
+    z-index: 0;
+  }
+
+  /* botões lado a lado, menores */
+  .botoes { flex-wrap: nowrap; gap: 10px; }
+  .btn { min-width: 0; padding: 10px 22px; font-size: 0.8rem; border-radius: 10px; }
+
+  /* nosso objetivo: imagem em cima (order negativo joga ela pro começo) e texto centralizado */
+  .objetivo { text-align: center; gap: 22px; padding-top: 36px; }
+  .objetivo > img { order: -1; width: 78%; margin: 0 auto; }
+  .objetivo p { font-size: 0.85rem; }
+
+  /* benefícios: só esse título é centralizado, os outros ficam à esquerda */
+  #beneficios > h2 { text-align: center; font-size: 1.5rem; }
+  .grid-beneficios { grid-template-columns: 1fr; gap: 18px; }
+  .card { align-items: center; padding: 16px 18px; }
+  .card img { width: 46px; height: 46px; }
+  .card h3 { font-size: 1rem; }
+  .card p { font-size: 0.76rem; }
+
+  /* por que escolher: uma coluna, com um recuo na esquerda igual ao layout */
+  .grid-motivos { grid-template-columns: 1fr; gap: 16px; padding-left: 10vw; }
+  .motivo h3 { font-size: 1rem; }
+
+  /* como funciona: passos empilhados, sem o cartão branco, ícone na esquerda e seta apontando pra baixo.
+     o .passos antes do .passo é só pra ganhar do hover/estilos das outras regras */
+  .passos { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+
+  .passos .passo {
+    flex: none;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 14px;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .passos .passo:hover { transform: none; box-shadow: none; }
+
+  .passo img { order: -1; width: 42px; height: 42px; } /* order negativo: ícone vai pra esquerda do texto */
+  .passo h3 { font-size: 1rem; margin-bottom: 2px; }
+
+  /* a seta é a mesma imagem da versão desktop, só girada 90° pra apontar pra baixo.
+     uso a propriedade "rotate" (e não transform) pra animação de empurrar continuar valendo:
+     ela acontece no eixo girado, então a seta empurra pra baixo sozinha */
+  .seta { display: block; align-self: center; width: 22px; rotate: 90deg; }
+
+  /* rodapé: só logo, redes e direitos, tudo centralizado */
+  .rodape { margin-top: 56px; padding: 36px 7vw 26px; text-align: center; }
+  .rodape-conteudo { grid-template-columns: 1fr; gap: 20px; }
+  .rodape-marca p,
+  .rodape-contato,
+  .rodape-links,
+  .rodape-direitos span:last-child { display: none; }
+
+  .logo-rodape { width: 170px; margin: 0 auto 18px; }
+  .redes { justify-content: center; gap: 56px; margin-top: 0; }
+  .redes img { width: 26px; height: 26px; }
+  .rodape-direitos { justify-content: center; }
+  .rodape-direitos span { font-size: 0.8rem; font-weight: 600; }
+}
+
+/* ---------- animações ----------
+  entrada do banner, itens que aparecem quando você rola (subir e entrar direita)
+   até eles, e uns hovers suaves. tudo usa a mesma curva (--suave) pra ter ritmo parecido */
+
+@keyframes subir {
+  from { opacity: 0 ; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes entrar-direita {
+  from { opacity: 0; transform: translateX(40px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* as setas dos passos dão uma empurradinha pra direita, mostrando o caminho */
+@keyframes empurrar {
+  0%, 100% { transform: translateX(-1px); }
+  50%      { transform: translateX(4px); }
+}
+
+/* banner: cada pedaço do texto entra um depois do outro (--i é o atraso de cada um) */
+.banner-texto > * {
+  animation: subir 1s var(--suave) backwards;
+  animation-delay: calc(var(--i, 0) * 140ms + 100ms);
+}
+.banner-texto > :nth-child(2) { --i: 1; }
+.banner-texto > :nth-child(3) { --i: 2; }
+.banner-texto > :nth-child(4) { --i: 3; }
+
+/* duas animações juntas: primeiro entra pela direita, e quando termina começa a flutuar */
+.banner-imagem {
+  animation: entrar-direita 1.2s var(--suave) 0.3s backwards,
+             flutuar 7s ease-in-out 1.5s infinite;
+}
+
+/* "revelar": o js coloca a classe .visivel quando o elemento aparece na tela.
+   o "backwards" faz o atraso valer sem travar o hover depois que termina.
+   a regra com .js é pra, se o javascript falhar, nada ficar invisível pra sempre */
+.js .revelar { opacity: 0; }
+.js .revelar.visivel {
+  opacity: 1;
+  animation: subir 0.9s var(--suave) backwards;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+
+/* atraso escalonado: o card da coluna 2 espera um pouco, o da 3 espera mais */
+.grid-beneficios .card:nth-child(3n+2),
+.motivo:nth-child(2),
+.passo:nth-of-type(2) { --i: 1; }
+.grid-beneficios .card:nth-child(3n),
+.motivo:nth-child(3),
+.passo:nth-of-type(3) { --i: 2; }
+.motivo:nth-child(4),
+.passo:nth-of-type(4) { --i: 3; }
+.objetivo > :nth-child(2) { --i: 1; }
+
+/* hovers: cards sobem de leve, ícones crescem e inclinam um pouquinho */
+.card,
+.passo {
+  transition: transform 0.45s var(--suave), box-shadow 0.45s var(--suave);
+}
+
+.card:hover,
+.passo:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(26, 103, 245, 0.12);
+}
+
+.card img,
+.motivo img,
+.passo img {
+  transition: transform 0.45s var(--suave);
+}
+
+.card:hover img,
+.motivo:hover img,
+.passo:hover img {
+  transform: scale(1.08) rotate(-3deg);
+}
+
+.btn {
+  transition: transform 0.35s var(--suave), box-shadow 0.35s var(--suave), background 0.35s ease;
+}
+.btn:hover { transform: translateY(-3px); }
+.btn-principal { box-shadow: 0 8px 20px rgba(26, 103, 245, 0.25); }
+.btn-principal:hover { box-shadow: 0 14px 28px rgba(26, 103, 245, 0.35); }
+.btn-secundario:hover { background: rgba(26, 103, 245, 0.24); }
+
+.seta { animation: empurrar 2.4s ease-in-out infinite; }
+
+/* links do rodapé e redes sociais também ganham transição */
+.rodape a { transition: color 0.35s ease; }
+.rodape a:hover { color: var(--azul); }
+.redes a { transition: transform 0.35s var(--suave); }
+.redes a:hover { transform: translateY(-3px) scale(1.08); }
